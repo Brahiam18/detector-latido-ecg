@@ -1,0 +1,28 @@
+# Archivos auxiliares de LaTeX
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.lob
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+informe/main.pdf
+
+# Salidas de la simulación (se regeneran con sim.py)
+simulacion/fig/
+
+# Python
+__pycache__/
+*.pyc
+
+# Proteus (respaldos y archivos temporales)
+*.pdsbak
+*.workspace
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

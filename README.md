@@ -22,14 +22,7 @@ Diseñar e implementar un detector de latido cardiaco basado en amplificadores o
 
 ## Diagrama de bloques
 
-```mermaid
-flowchart LR
-    IN([Vin<br/>ECG]) --> A["Amplificador<br/>no inversor<br/>G = 4,9"]
-    A -->|TP1| B["Rectificador de<br/>precisión<br/>Vr = |Vg|"]
-    B -->|TP3| C["Detector de pico<br/>τ = 100 ms"]
-    C -->|TP4| D["Comparador Schmitt<br/>1,01 V / 0,52 V"]
-    D -->|TP5| E([LED])
-```
+![Diagrama de bloques](docs/img/diagrama_bloques.png)
 
 ## Circuito
 

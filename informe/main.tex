@@ -47,6 +47,7 @@
 
 % ---------- Figuras y circuitos ----------
 \usepackage{graphicx}
+\usepackage{subcaption}
 \graphicspath{{figuras/}}
 \usepackage{float}
 \usepackage{pdflscape}
@@ -110,7 +111,7 @@
 
 % ---------------------------- RESUMEN -------------------------------
 \begin{abstract}
-Se diseñó, simuló y montó un detector de latido cardiaco que entrega un pulso rectangular limpio por cada complejo QRS de una señal tipo ECG. El circuito usa seis amplificadores operacionales alimentados a $\pm\SI{12}{V}$ y está formado por cinco etapas: un amplificador no inversor de ganancia 4,9, un rectificador de precisión de onda completa, un detector de pico con buffer y constante de descarga $\tau=\SI{100}{ms}$, un comparador Schmitt con umbrales $\VTH=\SI{1,01}{V}$ y $\VTL=\SI{0,52}{V}$, y un indicador LED. Cada etapa se dimensionó a partir de especificaciones de la señal (amplitud de 0,5 a \SI{2}{V_{pp}}, ancho de \SI{75}{ms}, frecuencia de 40 a 150 latidos por minuto) y se verificó con una simulación por comportamiento en Python y con Proteus. En la simulación el circuito detectó todos los latidos dentro del rango de diseño en ambas polaridades; el único caso que falla, 180 lpm con \SI{2}{V_{pp}}, coincide con el límite teórico de \SI{163}{lpm} que predice el análisis de la descarga.
+Se diseñó, simuló y montó un detector de latido cardiaco que entrega un pulso rectangular limpio por cada complejo QRS de una señal tipo ECG. El circuito usa seis amplificadores operacionales alimentados a $\pm\SI{12}{V}$ y está formado por cinco etapas: un amplificador no inversor de ganancia 4,9, un rectificador de precisión de onda completa, un detector de pico con buffer y constante de descarga $\tau=\SI{100}{ms}$, un comparador Schmitt con umbrales $\VTH=\SI{1,01}{V}$ y $\VTL=\SI{0,52}{V}$, y un indicador LED. Cada etapa se dimensionó a partir de especificaciones de la señal (amplitud de 0,5 a \SI{2}{V_{pp}}, ancho de \SI{75}{ms}, frecuencia de 40 a 150 latidos por minuto) y se verificó con una simulación por comportamiento en Python y con Proteus. En la simulación el circuito detectó todos los latidos dentro del rango de diseño en ambas polaridades; el único caso que falla, 180 lpm con \SI{2}{V_{pp}}, coincide con el límite teórico de \SI{163}{lpm} que predice el análisis de la descarga. El montaje con dos LM324N se probó con la forma de onda cardiaca del generador Agilent 33120A a \SI{1,2}{Hz}: entregó un pulso por latido (\SI{1,199}{Hz} medidos a la salida), con picos de \SI{4,23}{V} en $\Vr$ y \SI{4,32}{V} en $\Venv$, y siguió detectando cada latido con una entrada de \SI{4}{V_{pp}}, el doble del máximo de diseño.
 
 \medskip
 \noindent\textbf{Palabras clave:} rectificador de precisión, detector de pico, comparador Schmitt, histéresis, ECG, amplificador operacional.
@@ -143,7 +144,7 @@ Diseñar e implementar un detector de latido cardiaco basado en amplificadores o
 El enunciado solo fija las condiciones de la señal y del montaje; todos los demás valores (ganancia, constante de tiempo, umbrales) son resultado del diseño. Los datos de partida son:
 \begin{itemize}
   \item Op-amps LM324 o TL074 alimentados a $\pm\SI{12}{V}$, que saturan en $\pm\Vsat\approx\pm\SI{10,5}{V}$.
-  \item Señal de prueba (generador GW Instek AFG-2025): pulso rectangular de \SI{1,2}{Hz} (72 lpm), ancho de \SI{75}{ms}, de 0,5 a \SI{2}{V_{pp}} con nivel bajo en \SI{0}{V}, como modelo del QRS; y sinusoide de \SI{0,5}{Hz} de 0,5 a \SI{2}{V_{pp}}.
+  \item Señal de prueba (generador de funciones): pulso rectangular de \SI{1,2}{Hz} (72 lpm), ancho de \SI{75}{ms}, de 0,5 a \SI{2}{V_{pp}} con nivel bajo en \SI{0}{V}, como modelo del QRS; y sinusoide de \SI{0,5}{Hz} de 0,5 a \SI{2}{V_{pp}}.
   \item Rango de funcionamiento: 40 a 150 lpm, con onda R positiva o negativa.
   \item Salida: un pulso por latido, visible en un LED.
 \end{itemize}
@@ -185,9 +186,9 @@ Un comparador simple cambia de estado cuando la entrada cruza un umbral; si la e
 
 \subsection{Equipos}
 \begin{itemize}
-  \item Generador de funciones GW Instek AFG-2025 (pulso y sinusoide; no tiene forma cardiaca).
-  \item Osciloscopio digital de dos o cuatro canales.
-  \item Fuente dual de $\pm\SI{12}{V}$.
+  \item Generador de funciones y ondas arbitrarias Agilent 33120A (\SI{15}{MHz}), con forma de onda cardiaca de fábrica (CARDIAC).
+  \item Osciloscopio digital GW Instek GDS-1102A-U (\SI{100}{MHz}, dos canales).
+  \item Fuente dual GW Instek en modo serie, ajustada a $\pm\SI{12}{V}$.
   \item Multímetro digital.
   \item Proteus 8 (simulación) y Python con NumPy y Matplotlib (simulación por comportamiento).
 \end{itemize}
@@ -206,7 +207,7 @@ Ref. & Componente & Valor & Cant. & Bloque \\
 Ref. & Componente & Valor & Cant. & Bloque \\
 \midrule
 \endhead
-U1--U6 & Op-amp cuádruple TL074 (o LM324) + base DIP-14 & --- & 2 & Todos \\
+U1--U6 & Op-amp cuádruple LM324N (o TL074) + base DIP-14 & --- & 2 & Todos \\
 R0 & Resistencia & \SI{100}{k\ohm} & 1 & Entrada \\
 Rf1 & Resistencia & \SI{39}{k\ohm} & 1 & Amplificador \\
 Rg1, R2, R3, R5, R8, R10 & Resistencia & \SI{10}{k\ohm} & 6 & Varios \\
@@ -218,7 +219,7 @@ R12 & Resistencia & \SI{15}{k\ohm} & 1 & $\Vref$ \\
 R13 & Resistencia & \SI{1}{k\ohm} & 1 & $\Vref$ \\
 R14 & Resistencia & \SI{1}{k\ohm} & 1 & LED \\
 D1--D5 & Diodo de señal 1N4148 & --- & 5 & Rectificador, detector, LED \\
-LED1 & LED rojo \SI{5}{mm} & --- & 1 & Indicador \\
+LED1 & LED \SI{5}{mm} (azul en el montaje) & --- & 1 & Indicador \\
 C1 & Condensador de poliéster & \SI{1}{\micro F} & 1 & Detector \\
 C2--C5 & Cerámico de desacople & \SI{100}{nF} & 4 & Alimentación \\
 C6, C7 & Electrolítico & \SI{10}{\micro F}, \SI{25}{V} & 2 & Alimentación \\
@@ -694,6 +695,8 @@ I_{LED}=\frac{\Vsat-V_{D5}-V_{LED}}{R_{14}}=\frac{10{,}5-0{,}7-2{,}0}{\SI{1}{k\o
 \end{equation}
 La caída de D5 (\SI{0,7}{V}) es la de un diodo de silicio a corriente de mA, y la del LED rojo (\SI{2}{V}) es dato de su hoja de datos. Con $V_o=-\SI{10,5}{V}$, D5 bloquea la tensión inversa (el 1N4148 soporta \SI{100}{V}) y protege al LED, que solo tolera unos \SI{5}{V} en inversa.
 
+En el montaje se usó un LED azul, cuya caída es de unos \SI{3}{V}; con el nivel alto medido de \SI{11,1}{V} la corriente queda en $(11{,}1-0{,}7-3{,}0)/\SI{1}{k\ohm}\approx\SI{7,4}{mA}$, prácticamente la misma del diseño.
+
 La frecuencia cardiaca se obtiene contando los flancos de subida de TP5: $FC = 60/T_{RR}$, con $T_{RR}$ el tiempo entre dos flancos.
 
 % ---------------------------- 6. SIMULACION --------------------------
@@ -821,12 +824,15 @@ LED & LED1 & D6 (LED-AQUA) \\
   \item El circuito es solo para pruebas con generador; no se conecta a electrodos en una persona, porque eso exige aislamiento y normas de seguridad (IEC 60601).
 \end{enumerate}
 
-\subsection{Configuración del generador AFG-2025}
-\begin{itemize}
-  \item Pulso positivo: amplitud $=V_{pp}$ deseado, offset $=+V_{pp}/2$ (nivel bajo en \SI{0}{V}), \SI{1,2}{Hz}, ciclo de trabajo \SI{9}{\percent}.
-  \item Pulso negativo: misma amplitud, offset $=-V_{pp}/2$ y ciclo de trabajo \SI{91}{\percent}.
-  \item Verificar la amplitud real con el osciloscopio: si el generador está configurado para carga de \SI{50}{\ohm} y se carga con alta impedancia, entrega el doble de lo que indica.
-\end{itemize}
+\subsection{Configuración del generador Agilent 33120A}
+El plan inicial era usar el generador GW Instek AFG-2025, que solo ofrece pulsos y sinusoides. En el laboratorio se reemplazó por el Agilent 33120A porque trae de fábrica una forma de onda cardiaca (CARDIAC) con ondas P, QRS y T, mucho más cercana a la señal real que el pulso rectangular. La sinusoide se generó con el mismo equipo. La configuración fue:
+\begin{enumerate}
+  \item \textbf{Forma de onda:} \texttt{Shift} + \texttt{Arb} (\textit{Arb List}), seleccionar \texttt{CARDIAC} con las flechas, \texttt{Enter} y luego \texttt{Arb} para activarla.
+  \item \textbf{Frecuencia:} \texttt{Freq}, \texttt{Enter Number}, \texttt{1.2} y la flecha de unidad Hz. \SI{1,2}{Hz} equivalen a 72 lpm.
+  \item \textbf{Amplitud:} \texttt{Ampl}, con 1, 2 y \SI{4}{V_{pp}} en las distintas pruebas.
+  \item \textbf{Terminación de salida en alta impedancia} (\texttt{OUT TERM} $=$ \texttt{HIGH Z} en el menú del sistema): por defecto el equipo supone una carga de \SI{50}{\ohm} y, como la entrada del circuito es de \SI{100}{k\ohm}, entregaría el doble de lo indicado.
+  \item \textbf{Offset:} se ajustó mirando la entrada en el osciloscopio con acoplamiento DC, hasta dejar la línea base entre latidos en \SI{0}{V}. Si la base queda negativa, el rectificador la convierte en un nivel positivo constante y la envolvente no baja de $\VTL$.
+\end{enumerate}
 
 \subsection{Puntos de medición}
 
@@ -916,23 +922,165 @@ Offset en TP4 (entrada a \SI{0}{V}) & $<\SI{50}{mV}$ & & & \\
 
 \subsection{Montaje en el laboratorio}
 
+El circuito se montó en protoboard con dos LM324N alimentados a $\pm\SI{12}{V}$ desde una fuente dual en modo serie, con tierra común para la fuente, el generador y el osciloscopio (figura~\ref{fig:montaje}).
+
 \begin{figure}[H]
 \centering
-\pendiente{Insertar fotografía del montaje en la protoboard.}
-\caption{Montaje del detector en la protoboard.}\label{fig:montaje}
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_banco.jpg}
+\caption{Banco de pruebas: osciloscopio, fuente dual y protoboard.}
+\end{subfigure}\hfill
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_montaje_led.jpg}
+\caption{Montaje con dos LM324N; LED encendido durante un latido.}
+\end{subfigure}
+\caption{Montaje del detector en el laboratorio.}\label{fig:montaje}
+\end{figure}
+
+\subsubsection{Señal de entrada}
+La figura~\ref{fig:labentrada} muestra la forma CARDIAC de \SI{1}{V_{pp}} medida en la entrada con acoplamiento DC. Se distinguen la onda P, el QRS y la onda T, con la línea base en \SI{0}{V}. El pico R llega a \SI{0,78}{V} y la onda S a $-\SI{0,22}{V}$, con \SI{1,00}{V} entre cursores, igual a lo programado en el generador.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.55\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_entrada_cardiac.jpg}
+\caption{Entrada (\SI{200}{mV/div}, \SI{1}{s/div}).}
+\end{subfigure}\hfill
+\begin{subfigure}[b]{0.43\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_gen_1vpp.jpg}
+\caption{Generador en \SI{1,000}{V_{pp}}, forma \textit{Arb}.}
+\end{subfigure}
+\caption{Señal cardiaca de prueba del Agilent 33120A.}\label{fig:labentrada}
+\end{figure}
+
+\subsubsection{Respuesta por etapas con la señal cardiaca (\SI{1}{V_{pp}}, \SI{1,2}{Hz})}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_vr_ecg.jpg}
+\caption{TP3, $\Vr$ (\SI{2}{V/div}, \SI{500}{ms/div}).}
+\end{subfigure}\hfill
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_venv_ecg.jpg}
+\caption{TP4, $\Venv$ (\SI{1}{V/div}, \SI{500}{ms/div}).}
+\end{subfigure}
+\caption{Salida del rectificador y del detector de pico con la señal cardiaca.}\label{fig:labetapas}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{Rectificador (TP3):} toda la señal queda positiva y la línea base se mantiene en \SI{0}{V}, sin escalón en el cruce por cero. El pico R rectificado llega a \SI{4,23}{V}. Con la ganancia de diseño y el pico de entrada leído en la figura~\ref{fig:labentrada} se esperaban $4{,}9\times0{,}78=\SI{3,84}{V}$. La diferencia, de unos \SI{10}{\percent}, se atribuye sobre todo a que a \SI{1}{s/div} en modo \textit{roll} el osciloscopio toma pocas muestras por división y recorta el pico R, que dura unas decenas de milisegundos. También influye la tolerancia de Rf1 y Rg1 (\SI{5}{\percent}).
+  \item \textbf{Detector de pico (TP4):} la envolvente sube con el QRS hasta \SI{4,32}{V} y se descarga de forma exponencial. La diferencia con $\Vr$, de \SI{0,09}{V}, es el offset acumulado de U4 y U5, del mismo orden que el observado en Proteus. La onda T rectificada aparece como una pequeña joroba durante la descarga.
+\end{itemize}
+
+\subsubsection{Salida del comparador}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{lab_entrada_salida.jpg}
+\caption{Entrada cardiaca (CH1, amarillo, \SI{1}{V/div}) y salida del Schmitt en TP5 (CH2, azul, \SI{5}{V/div}), a \SI{250}{ms/div}: un pulso rectangular por cada QRS.}\label{fig:labsalida}
+\end{figure}
+
+La figura~\ref{fig:labsalida} es el resultado principal del montaje: cada QRS de la entrada produce un único flanco de subida en la salida, y la onda T no genera disparos adicionales. La salida conmuta entre los niveles de saturación del LM324N. Medido con el osciloscopio (figura~\ref{fig:labmedidas}a), el nivel alto es de \SI{11,1}{V} y la frecuencia de salida es de \SI{1,199}{Hz}, igual a la de la entrada. Con ese nivel alto los umbrales reales quedan en $\VTH=0{,}767+11{,}1\,(0{,}02326)=\SI{1,03}{V}$ y $\VTL=\SI{0,51}{V}$, a menos de \SI{20}{mV} de los valores de diseño. Medida después de D5, sobre el LED, la salida va de \SI{0}{V} a \SI{9,9}{V} (figura~\ref{fig:labled}): D5 bloquea el nivel negativo, como se diseñó.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\linewidth]{lab_salida_led.jpg}
+\caption{Salida medida después de D5, sobre el LED (\SI{2}{V/div}, \SI{250}{ms/div}): de \SI{0}{V} a \SI{9,92}{V}.}\label{fig:labled}
+\end{figure}
+
+\subsubsection{Prueba con \SI{4}{V_{pp}} a \SI{1,2}{Hz}}
+Para comprobar la robustez del diseño se aumentó la amplitud a 2 y luego a \SI{4}{V_{pp}}, el doble del máximo especificado. A \SI{1,2}{Hz} el circuito siguió entregando un pulso por latido, con \SI{1,202}{Hz} medidos a la salida (figura~\ref{fig:labmedidas}b).
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_medida_a.jpg}
+\caption{\SI{1}{V_{pp}}: $V_{max}=\SI{11,1}{V}$, $V_{avg}=\SI{6,55}{V}$, \SI{1,199}{Hz}.}
+\end{subfigure}\hfill
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_medida_b.jpg}
+\caption{\SI{4}{V_{pp}}: $V_{max}=\SI{11,1}{V}$, $V_{avg}=\SI{9,08}{V}$, \SI{1,202}{Hz}.}
+\end{subfigure}
+\caption{Mediciones automáticas de la salida del Schmitt (TP5, \SI{5}{V/div}, \SI{250}{ms/div}).}\label{fig:labmedidas}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\pendiente{Insertar captura del osciloscopio del laboratorio: pulso a la entrada y salida del detector.}
-\caption{Medición en el montaje: respuesta al pulso.}\label{fig:medpulso}
+\begin{subfigure}[b]{0.52\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_venv_4vpp.jpg}
+\caption{$\Venv$ con \SI{4}{V_{pp}}: satura en \SI{11,0}{V}.}
+\end{subfigure}\hfill
+\begin{subfigure}[b]{0.46\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_gen_4vpp.jpg}
+\caption{Generador en \SI{4,000}{V_{pp}}.}
+\end{subfigure}
+\caption{Prueba fuera de especificación: entrada de \SI{4}{V_{pp}} a \SI{1,2}{Hz}.}\label{fig:lab4vpp}
 \end{figure}
+
+Como la salida alterna entre $+V_H\approx\SI{11,1}{V}$ y $-V_L\approx\SI{10,5}{V}$, el ciclo de trabajo $d$ se obtiene del valor medio medido, $V_{avg}=d\,V_H-(1-d)\,V_L$:
+\begin{equation}
+d=\frac{V_{avg}+V_L}{V_H+V_L}
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{Salida del comparador con la señal cardiaca a \SI{1,2}{Hz} ($T\approx\SI{833}{ms}$).}\label{tab:labsalida}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Entrada & Pico de $\Venv$ & $f_{salida}$ & $V_{avg}$ & $d$ & En alto & En bajo \\
+\midrule
+\SI{1}{V_{pp}} & \SI{4,32}{V} & \SI{1,199}{Hz} & \SI{6,55}{V} & \SI{79}{\percent} & \SI{658}{ms} & \SI{176}{ms} \\
+\SI{4}{V_{pp}} & \SI{11,0}{V} (saturado) & \SI{1,202}{Hz} & \SI{9,08}{V} & \SI{91}{\percent} & \SI{754}{ms} & \SI{78}{ms} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Dos efectos explican por qué el circuito tolera \SI{4}{V_{pp}} a 72 lpm:
+\begin{itemize}
+  \item \textbf{La saturación limita la envolvente.} Con \SI{4}{V_{pp}}, U1 se satura y $\Venv$ no pasa de unos \SI{11}{V}. El tiempo de descarga queda acotado a $\tau\ln(11/0{,}52)\approx\SI{305}{ms}$ aunque la entrada siga creciendo, y el comparador alcanza a liberarse dentro del periodo de \SI{833}{ms}.
+  \item \textbf{La onda T alarga el pulso.} Con la forma cardiaca el pulso de salida dura bastante más que con el pulso rectangular de \SI{75}{ms} (\SI{658}{ms} frente a unos \SI{300}{ms}), porque la onda T rectificada vuelve a cargar C1 y mantiene $\Venv$ por encima de $\VTL$. Con \SI{4}{V_{pp}} la onda T amplificada es mayor y el tiempo en bajo se reduce a \SI{78}{ms}: el circuito sigue funcionando, pero cerca de su límite. Con frecuencias o amplitudes mayores los latidos empezarían a fundirse.
+\end{itemize}
+Cuando U1 se satura se pierde la información de amplitud, pero la detección no depende de ella: basta con que $\Venv$ supere $\VTH$ y vuelva a bajar de $\VTL$ en cada periodo.
+
+\subsubsection{Prueba con sinusoide}
 
 \begin{figure}[H]
 \centering
-\pendiente{Insertar captura del osciloscopio del laboratorio: sinusoide a la entrada y salida del detector.}
-\caption{Medición en el montaje: respuesta a la sinusoide.}\label{fig:medseno}
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_vr_seno.jpg}
+\caption{TP3, $\Vr$: onda completa, pico de \SI{4,23}{V}.}
+\end{subfigure}\hfill
+\begin{subfigure}[b]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{lab_venv_seno.jpg}
+\caption{TP4, $\Venv$: oscila entre $\approx\SI{1,6}{V}$ y \SI{4,32}{V}.}
+\end{subfigure}
+\caption{Respuesta a la sinusoide (\SI{500}{ms/div}).}\label{fig:labseno}
 \end{figure}
+
+El rectificador entrega una onda completa limpia, con dos semiciclos positivos por ciclo y valles que llegan exactamente a \SI{0}{V}. Esto confirma en el montaje que el rectificador de precisión no tiene una zona muerta apreciable. En cambio, la envolvente nunca baja de $\approx\SI{1,6}{V}$: la sinusoide vuelve a subir antes de que C1 se descargue hasta $\VTL$, así que el comparador permanece en alto y no entrega pulsos separados. Es el comportamiento que anticipó la simulación con sinusoide: este tipo de señal tiene un límite de frecuencia mucho menor que el pulso, porque produce dos eventos por ciclo y casi nunca pasa por cero.
+
+\subsubsection{Resumen: cálculo, simulación y montaje}
+
+\begin{table}[H]
+\centering
+\caption{Comparación de resultados.}\label{tab:comparacion}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{3.3cm}>{\raggedright}p{2.7cm}>{\raggedright}p{2.4cm}X@{}}
+\toprule
+Magnitud & Cálculo / Proteus & Montaje & Comentario \\
+\midrule
+Nivel alto de salida & \SI{10,5}{V} (supuesto) & \SI{11,1}{V} & LM324N a $\pm\SI{12}{V}$ con carga ligera \\
+$\VTH$ / $\VTL$ & 1,01 / \SI{0,52}{V} & 1,03 / \SI{0,51}{V} & Recalculados con el nivel alto medido \\
+Offset $\Venv-\Vr$ & \SI{0,05}{V} (Proteus) & \SI{0,09}{V} & Offset de U4 y U5 \\
+Valle de $\Vr$ con sinusoide & \SI{0}{V} & \SI{0}{V} & Sin zona muerta \\
+Pulsos por latido & 1 & 1 & Sin disparos por la onda T \\
+Frecuencia de salida & \SI{1,2}{Hz} & \SI{1,199}{Hz} & Igual a la de entrada \\
+Amplitud máxima probada & \SI{2}{V_{pp}} (diseño) & \SI{4}{V_{pp}} & Funciona gracias a la saturación de U1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 % ---------------------------- 9. ANALISIS ----------------------------
 \section{Análisis y discusión}
@@ -960,7 +1108,7 @@ Offset en $\Venv$ & 15--\SI{20}{mV} & 20--\SI{45}{mV} típico & Muy por debajo d
 \subsection{Limitaciones}
 \begin{itemize}
   \item Umbrales fijos: por debajo de $\approx\SI{0,4}{V_{pp}}$ no hay detección y por encima de $\approx\SI{2,1}{V_{pp}}$ U1 se satura. Un monitor real usa un umbral adaptativo (una fracción del pico anterior).
-  \item $\tau$ fijo limita la frecuencia máxima a $\approx163$ lpm con \SI{2}{V_{pp}}.
+  \item $\tau$ fijo limita la frecuencia máxima a $\approx163$ lpm con \SI{2}{V_{pp}} para el pulso rectangular. Con una forma cardiaca el límite es menor, porque la onda T prolonga la envolvente: en el montaje, con \SI{4}{V_{pp}} a 72 lpm, el comparador solo estuvo \SI{78}{ms} en bajo entre latidos.
   \item Sin filtrado: con una señal real, una onda T alta o el ruido de \SI{60}{Hz} podrían disparar el comparador. Un monitor real antepone un amplificador de instrumentación y un filtro pasa banda de 0,5 a \SI{40}{Hz}.
   \item Con el 741, el peor caso de corriente de polarización por R0 puede llevar el offset a $\approx\SI{0,27}{V}$; si es un problema, R0 puede bajarse a \SI{10}{k\ohm} sin afectar el resto.
 \end{itemize}
@@ -969,7 +1117,8 @@ Offset en $\Venv$ & 15--\SI{20}{mV} & 20--\SI{45}{mV} típico & Muy por debajo d
 \section{Conclusiones}
 \begin{itemize}
   \item Se diseñó un detector de latido que entrega un pulso por cada complejo QRS usando solo bloques no lineales con op-amps. En Proteus los valores coincidieron con los calculados con errores de 1,6\,\% o menos: picos de \SI{4,90}{V} en $\Vr$ y \SI{4,95}{V} en $\Venv$, y un pulso de salida de unos \SI{400}{ms} frente a los \SI{405}{ms} predichos.
-  \item El rectificador de precisión de onda completa resolvió el problema de la polaridad: la sinusoide dio dos pulsos por ciclo y el latido sintético invertido se detectó igual que el positivo. Colocar el diodo dentro del lazo de realimentación reduce la zona muerta de \SI{0,6}{V} a unos \si{\micro V}; un rectificador pasivo habría perdido el \SI{25}{\percent} de la señal más pequeña.
+  \item El montaje con dos LM324N cumplió el objetivo con una señal cardiaca realista (forma CARDIAC del Agilent 33120A): un pulso rectangular por latido a \SI{1,199}{Hz}, sin disparos por la onda T. El nivel alto real fue de \SI{11,1}{V} en lugar de \SI{10,5}{V}, lo que mueve los umbrales menos de \SI{20}{mV}. Con \SI{4}{V_{pp}} a \SI{1,2}{Hz}, el doble del máximo de diseño, el circuito siguió detectando cada latido, porque la saturación de los op-amps limita la envolvente a unos \SI{11}{V} y acota el tiempo de descarga. Sin embargo, el tiempo en bajo se redujo a \SI{78}{ms}: con amplitudes altas y una onda T marcada el diseño queda cerca de su límite.
+  \item El rectificador de precisión de onda completa resolvió el problema de la polaridad: la sinusoide dio dos pulsos por ciclo en Proteus, el latido sintético invertido se detectó igual que el positivo y, en el montaje, la onda completa llegó exactamente a \SI{0}{V} en cada valle. Colocar el diodo dentro del lazo de realimentación reduce la zona muerta de \SI{0,6}{V} a unos \si{\micro V}; un rectificador pasivo habría perdido el \SI{25}{\percent} de la señal más pequeña.
   \item El sumador muestra cómo una operación lineal produce una función no lineal: combinar la señal completa (peso 1) con la media onda (peso 2) da $|\Vg|$. El análisis también mostró que el semiciclo positivo depende de una resta ($2-1$), por lo que las resistencias deben ser al \SI{1}{\percent}.
   \item La constante de descarga $\tau=R_9C_1$ es el parámetro crítico. No se eligió arbitrariamente: la ventana de 90 a \SI{110}{ms} sale de dos condiciones opuestas, fundir los lóbulos del QRS y liberar el comparador antes del siguiente latido. La fórmula $FC_{max}=60/(w+\tau\ln(V_p/\VTL))$ predijo correctamente el único caso de falla de la simulación (180 lpm con \SI{2}{V_{pp}}).
   \item El buffer y la resistencia R8 son indispensables: el buffer impide que R8 y el comparador descarguen el condensador (sin él $\tau$ caería a unos \SI{9}{ms}), y R8 permite que la salida del buffer y la tierra virtual del detector tengan tensiones distintas durante la descarga.

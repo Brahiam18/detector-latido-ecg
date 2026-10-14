@@ -3,9 +3,9 @@
 ![Proteus](https://img.shields.io/badge/Simulación-Proteus_8-1f425f)
 ![Python](https://img.shields.io/badge/Python-NumPy%20%7C%20Matplotlib-3776AB)
 ![LaTeX](https://img.shields.io/badge/Informe-LaTeX-008080)
-![Estado](https://img.shields.io/badge/Estado-Simulado%20y%20validado-2ea44f)
+![Estado](https://img.shields.io/badge/Estado-Montado%20y%20probado%20en%20laboratorio-2ea44f)
 
-Circuito analógico que detecta cada complejo QRS de una señal tipo ECG y entrega **un pulso rectangular limpio por latido**, sin importar la polaridad de la onda R. Usa seis amplificadores operacionales a ±12 V y tres bloques no lineales: un rectificador de precisión, un detector de pico y un comparador Schmitt.
+Circuito analógico, simulado y montado en laboratorio, que detecta cada complejo QRS de una señal tipo ECG y entrega **un pulso rectangular limpio por latido**, sin importar la polaridad de la onda R. Usa seis amplificadores operacionales a ±12 V y tres bloques no lineales: un rectificador de precisión, un detector de pico y un comparador Schmitt.
 
 > Proyecto del Laboratorio de Circuitos No Lineales, Ingeniería Electrónica, Universidad de Ibagué.
 > Docente: Ing. Rodolfo José Gutiérrez González.
@@ -71,6 +71,30 @@ Respuesta de todas las etapas a un pulso tipo QRS (simulación por comportamient
 | Pulso de prueba en Proteus | Latido sintético en Proteus |
 |---|---|
 | ![Pulso](docs/img/proteus_pulso.png) | ![ECG](docs/img/proteus_ecg.png) |
+
+## Resultados en el laboratorio
+
+Montaje en protoboard con **dos LM324N** a ±12 V, probado con la forma de onda **CARDIAC** del generador **Agilent 33120A** (P, QRS y T) a 1,2 Hz (72 lpm), con un osciloscopio GW Instek GDS-1102A-U.
+
+![Entrada cardiaca y salida del detector](docs/img/lab_entrada_salida.jpg)
+*Entrada cardiaca (amarillo) y salida del comparador Schmitt (azul): un pulso rectangular por cada QRS, sin disparos por la onda T.*
+
+| Envolvente del detector de pico (TP4) | Montaje con el LED encendido |
+|---|---|
+| ![Envolvente](docs/img/lab_venv_ecg.jpg) | ![Montaje](docs/img/lab_montaje_led.jpg) |
+
+| Medición | Diseño / Proteus | Montaje |
+|---|---|---|
+| Pico de Vr (TP3), entrada de 1 Vpp | — | 4,23 V |
+| Pico de Venv (TP4) | — | 4,32 V |
+| Nivel alto de salida | 10,5 V (supuesto) | 11,1 V |
+| VTH / VTL | 1,01 / 0,52 V | 1,03 / 0,51 V (recalculados con 11,1 V) |
+| Frecuencia de salida (entrada de 1,2 Hz) | 1,2 Hz | 1,199 Hz |
+| Amplitud máxima con detección correcta | 2 Vpp (diseño) | **4 Vpp** |
+
+- **Un pulso por latido** con la señal cardiaca realista, sin falsos disparos por la onda T.
+- Con **4 Vpp a 1,2 Hz**, el doble del máximo de diseño, el circuito siguió detectando cada latido: la saturación de los op-amps limita la envolvente a ~11 V y acota el tiempo de descarga. El tiempo en bajo entre latidos se redujo a 78 ms, así que el diseño queda cerca de su límite.
+- Con sinusoide, el rectificador entrega una onda completa con valles exactamente en 0 V (sin zona muerta). La envolvente no alcanza a bajar de VTL entre semiciclos, como predijo la simulación.
 
 ## Estructura del repositorio
 

@@ -10,6 +10,8 @@ Circuito analógico, simulado y montado en laboratorio, que detecta cada complej
 > Proyecto del Laboratorio de Circuitos No Lineales, Ingeniería Electrónica, Universidad de Ibagué.
 > Docente: Ing. Rodolfo José Gutiérrez González.
 
+🌐 **English version:** [Brahiam18/ecg-heartbeat-detector](https://github.com/Brahiam18/ecg-heartbeat-detector)
+
 📄 **[Informe completo (PDF)](informe/Informe_Detector_Latido_ECG.pdf)** · 📊 **[Presentación (PDF)](presentacion/Presentacion_Detector_Latido_ECG.pdf)**
 
 ---

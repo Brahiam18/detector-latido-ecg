@@ -1,4 +1,4 @@
-# Detector de latido ECG con amplificadores operacionales
+# Detector ideal de latido ECG con amplificadores operacionales
 
 ![Proteus](https://img.shields.io/badge/Simulación-Proteus_8-1f425f)
 ![Python](https://img.shields.io/badge/Python-NumPy%20%7C%20Matplotlib-3776AB)
@@ -90,6 +90,16 @@ Montaje en protoboard con **dos LM324N** a ±12 V, probado con la forma de onda 
 - **Un pulso por latido** con la señal cardiaca realista, sin falsos disparos por la onda T.
 - Con **4 Vpp a 1,2 Hz**, el doble del máximo de diseño, el circuito siguió detectando cada latido: la saturación de los op-amps limita la envolvente a ~11 V y acota el tiempo de descarga. El tiempo en bajo entre latidos se redujo a 78 ms, así que el diseño queda cerca de su límite.
 - Con sinusoide, el rectificador entrega una onda completa con valles exactamente en 0 V (sin zona muerta). La envolvente no alcanza a bajar de VTL entre semiciclos, como predijo la simulación.
+
+## Alternativa con dos comparadores
+
+Lo mismo podría hacerse con un **comparador de ventana**: dos comparadores sobre Vg (uno para +VT y otro para −VT) unidos con diodos. Usa menos op-amps, pero es **menos eficiente** para contar latidos:
+- **Cuenta lóbulos, no latidos:** con la señal medida (R = 0,78 V y S = −0,22 V a 1 Vpp; tras la ganancia, 3,8 V y −1,08 V), la R y la S disparan cada una un comparador, así que salen **dos pulsos por latido**.
+- **No tiene periodo refractario:** sin detector de pico nada funde los lóbulos Q, R y S en un solo evento.
+- **Es más sensible al ruido:** necesitaría histéresis en los dos comparadores, y aun así ve la señal cruda.
+- **Exige dos referencias simétricas** (+VT y −VT) en lugar de una sola.
+
+> Se llama detector **ideal** porque está pensado para señales ECG limpias de generador, sin ruido de 60 Hz ni deriva de línea base. Con una señal fisiológica real haría falta antes un amplificador de instrumentación con filtrado.
 
 ## Estructura del repositorio
 

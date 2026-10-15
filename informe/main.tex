@@ -1,5 +1,5 @@
 % =====================================================================
-%  Informe de laboratorio: Detector de latido ECG con amplificadores
+%  Informe de laboratorio: Detector ideal de latido ECG con amplificadores
 %  operacionales (circuitos no lineales)
 %  Compilar con pdfLaTeX (Overleaf: compilador pdfLaTeX).
 % =====================================================================
@@ -68,7 +68,7 @@
 % ---------- Encabezado ----------
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small Detector de latido ECG con op-amps}
+\fancyhead[L]{\small Detector ideal de latido ECG con op-amps}
 \fancyhead[R]{\small Laboratorio de circuitos no lineales}
 \fancyfoot[C]{\thepage}
 \setlength{\headheight}{14pt}
@@ -94,7 +94,7 @@
 {\large Facultad de Ingeniería\par}
 {\large Programa de Ingeniería Electrónica\par}
 \vspace{2.5cm}
-{\LARGE\bfseries Detector de latido ECG con amplificadores operacionales\par}
+{\LARGE\bfseries Detector ideal de latido ECG con amplificadores operacionales\par}
 \vspace{0.6cm}
 {\Large Rectificador de precisión, detector de pico y comparador Schmitt\par}
 \vspace{2.5cm}
@@ -140,6 +140,8 @@ En este informe se presenta el diseño completo de ese circuito: la deducción d
 \fbox{\parbox{0.92\linewidth}{\vspace{2mm}\itshape
 Diseñar e implementar un detector de latido cardiaco basado en amplificadores operacionales alimentados a $\pm\SI{12}{V}$, capaz de identificar cada complejo QRS de una señal tipo ECG de 0,5 a \SI{2}{V_{pp}} ideal, sin importar su polaridad o tipo de señal, entregando un pulso rectangular limpio por cada latido en un rango de 40 a 150 latidos por minuto.\vspace{2mm}}}
 \end{center}
+
+El detector se considera \textbf{ideal} porque está pensado para señales ECG limpias, como las de un generador: sin ruido de \SI{60}{Hz}, sin deriva de la línea base y sin artefactos de movimiento. Por eso no incluye amplificador de instrumentación ni filtrado; con una señal fisiológica real habría que anteponer esa etapa de acondicionamiento.
 
 El enunciado solo fija las condiciones de la señal y del montaje; todos los demás valores (ganancia, constante de tiempo, umbrales) son resultado del diseño. Los datos de partida son:
 \begin{itemize}
@@ -1065,7 +1067,7 @@ El rectificador entrega una onda completa limpia, con dos semiciclos positivos p
 
 \begin{table}[H]
 \centering
-\caption{Comparación de resultados.}\label{tab:comparacion}
+\caption{Comparación de resultados.}\label{tab:labcomparacion}
 \small
 \begin{tabularx}{\linewidth}{@{}>{\raggedright}p{3.3cm}>{\raggedright}p{2.7cm}>{\raggedright}p{2.4cm}X@{}}
 \toprule
@@ -1113,6 +1115,37 @@ Offset en $\Venv$ & 15--\SI{20}{mV} & 20--\SI{45}{mV} típico & Muy por debajo d
   \item Con el 741, el peor caso de corriente de polarización por R0 puede llevar el offset a $\approx\SI{0,27}{V}$; si es un problema, R0 puede bajarse a \SI{10}{k\ohm} sin afectar el resto.
 \end{itemize}
 
+\subsection{Alternativa con dos comparadores}\label{sec:doscomp}
+
+La misma función básica, detectar un QRS de cualquier polaridad, se puede obtener con un circuito mucho más simple: un \emph{comparador de ventana}. Después del amplificador U1 se colocan dos comparadores que miran directamente $\Vg$. Uno pone su salida en alto cuando $\Vg>+V_T$ y el otro cuando $\Vg<-V_T$, y sus salidas se unen con dos diodos (una compuerta OR) que encienden el LED. Usa dos op-amps en lugar de cinco después de U1 y no necesita rectificador, sumador ni detector de pico. Sin embargo, es menos eficiente para contar latidos, por cuatro razones:
+
+\begin{enumerate}
+  \item \textbf{Cuenta lóbulos, no latidos.} Sin detector de pico, cada cruce del umbral produce un pulso, y un QRS bifásico activa los dos comparadores. Con la señal cardiaca medida en el montaje (\SI{1}{V_{pp}}: onda R de \SI{0,78}{V} y onda S de $-\SI{0,22}{V}$), después de la ganancia de 4,9 la R llega a \SI{3,8}{V} y la S a $-\SI{1,08}{V}$. Con $V_T=\SI{1}{V}$, la R dispara el comparador positivo y la S el negativo: salen \textbf{dos pulsos por latido} y la frecuencia cardiaca medida se duplica. Subir $V_T$ para ignorar la S hace que dejen de detectarse las señales pequeñas o con la R negativa.
+  \item \textbf{No tiene periodo refractario.} El pulso de salida dura solo mientras la señal supera el umbral, unas decenas de milisegundos, y su ancho depende de la forma de cada QRS. En el diseño actual la constante $\tau$ fija una ventana que funde los lóbulos Q, R y S en un solo evento y que no se vuelve a abrir hasta que la envolvente baja de $\VTL$.
+  \item \textbf{Es más sensible al ruido.} Sin histéresis, el ruido cerca del umbral hace rebotar la salida en cada flanco. Agregar realimentación positiva a los dos comparadores duplica el ajuste de resistencias, y aun así cada comparador ve la señal cruda, con todo su ruido. En el diseño actual basta un solo comparador con histéresis porque la señal le llega ya rectificada y suavizada por el detector de pico.
+  \item \textbf{Exige dos umbrales simétricos.} Hay que generar $+V_T$ y $-V_T$ (una referencia negativa adicional) y emparejarlos; si no son iguales, el circuito es más sensible a una polaridad que a la otra. El diseño actual usa una sola referencia, porque el rectificador ya llevó las dos polaridades al mismo lado.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Comparador de ventana frente al diseño implementado.}\label{tab:doscomp}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{3.6cm}>{\raggedright}p{5.2cm}X@{}}
+\toprule
+Criterio & Dos comparadores (ventana) & Diseño implementado \\
+\midrule
+Op-amps después de U1 & 2 & 5 \\
+Pulsos por latido con QRS bifásico & 2 (R y S) & 1 \\
+Ventana para fundir lóbulos & No tiene & $\tau=\SI{100}{ms}$ \\
+Histéresis & Hay que agregarla a cada comparador & Un solo Schmitt \\
+Referencias & $+V_T$ y $-V_T$ & Una ($\Vref$) \\
+Ancho del pulso de salida & Variable, depende de la forma del QRS & Fijado por $\tau$ y los umbrales \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+En resumen, el comparador de ventana es más barato en componentes, pero da una detección menos confiable. El diseño implementado gasta más op-amps para convertir cada latido en un solo evento \emph{antes} de decidir, y eso es lo que garantiza un pulso por latido.
+
 % ---------------------------- 10. CONCLUSIONES -----------------------
 \section{Conclusiones}
 \begin{itemize}
@@ -1124,6 +1157,7 @@ Offset en $\Venv$ & 15--\SI{20}{mV} & 20--\SI{45}{mV} típico & Muy por debajo d
   \item El buffer y la resistencia R8 son indispensables: el buffer impide que R8 y el comparador descarguen el condensador (sin él $\tau$ caería a unos \SI{9}{ms}), y R8 permite que la salida del buffer y la tierra virtual del detector tengan tensiones distintas durante la descarga.
   \item La realimentación positiva del comparador Schmitt da dos umbrales (\SI{1,01}{V} y \SI{0,52}{V}) y transiciones regenerativas: al disparar, la entrada no inversora salta lejos de la referencia y el ruido no puede devolver la salida. Con la onda T del latido sintético no hubo disparos falsos.
   \item El diseño tiene límites claros: umbrales fijos (entradas de 0,4 a \SI{2,1}{V_{pp}}), frecuencia máxima de unos 160 lpm con la amplitud mayor y ausencia de filtrado. Un siguiente paso sería anteponer un amplificador de instrumentación con filtro pasa banda de 0,5 a \SI{40}{Hz}, usar un umbral adaptativo y contar los pulsos con un microcontrolador para mostrar la frecuencia cardiaca.
+  \item El mismo objetivo básico podría lograrse con un comparador de ventana de dos comparadores, con menos componentes, pero sería menos eficiente: sin detector de pico cuenta lóbulos en lugar de latidos (con la señal medida, la R y la S darían dos pulsos por latido), no tiene periodo refractario, es más sensible al ruido y necesita dos umbrales simétricos (sección~\ref{sec:doscomp}).
 \end{itemize}
 
 % ---------------------------- REFERENCIAS ----------------------------
